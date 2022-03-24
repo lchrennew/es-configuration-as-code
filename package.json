@@ -1,0 +1,21 @@
+{
+  "name": "es-configuration-as-code",
+  "version": "1.0.0",
+  "description": "Configuration as Code",
+  "main": "src/index.js",
+  "author": "Chun Li",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon"
+  },
+  "dependencies": {
+    "es-fetch-api": "^1.0.26",
+    "js-yaml": "^4.1.0",
+    "koa-es-template": "^1.0.20",
+    "node-fetch": "^3.2.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

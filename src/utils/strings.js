@@ -1,5 +1,5 @@
-const pattern = /\$(?:(?<expand>\.{3})|(?<encode>@))?(?<name>[^\$]+)\$/g
-const objectPattern = /^\$\.{3}[^\$]+\$$/i
+const pattern = /\$(?:(?<expand>\.{3})|(?<encode>@))?(?<name>[^$]+)\$/g
+const objectPattern = /^\$\.{3}[^$]+\$$/i
 
 const exec = (string, variables) => {
 

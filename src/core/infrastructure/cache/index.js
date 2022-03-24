@@ -1,8 +1,13 @@
 import { getLogger } from "koa-es-template";
+import { addPath, getPaths, removePath } from "./paths-cache.js";
+import { getOne, removeCacLinkKey } from "./cac-cache.js";
 
-const logger = getLogger('Cache')
-const implement = process.env.MODEL_CACHE ?? 'in-memory'
-logger.debug(`Loading Cache Implement: ${implement}`)
-const { Cache } = await import(`./${implement}/index.js`)
 
-export { Cache }
+const logger = getLogger('CACHE')
+export {
+
+    addPath, getPaths, removePath,
+
+    getOne, removeCacLinkKey,
+}
+

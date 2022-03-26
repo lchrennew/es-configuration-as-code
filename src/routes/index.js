@@ -5,6 +5,7 @@ export default class Index extends Controller {
     constructor(config, ...middlewares) {
         super(config, ...middlewares);
         this.get('/configs/info', this.getOne)
+        this.get('/configs/exists', this.exists)
         this.get('/configs', this.find)
         this.put('/configs', this.save)
         this.delete('/configs/info', this.remove)
@@ -12,15 +13,18 @@ export default class Index extends Controller {
 
     async getOne(ctx) {
         const { kind, name, ref } = ctx.query
-        const data = await storage.getOne(kind, name, ref)
-        if (!data) ctx.body = { ok: false, error: `cannot found ${kind}/${name} of ${ref}` }
-        ctx.body = { ok: true, data }
+        ctx.body = await storage.getOne(kind, name, ref).catch(() => null)
     }
 
     async find(ctx) {
         const { kind, prefix } = ctx.query
-        const data = await storage.find(kind, prefix)
-        ctx.body = { ok: true, data }
+        ctx.body = await storage.find(kind, prefix).catch(() => [])
+    }
+
+    async exists(ctx) {
+        const { kind, name, ref } = ctx.query
+        const config = await storage.getOne(kind, name, ref).catch(() => null)
+        ctx.body = !!config
     }
 
     async save(ctx) {

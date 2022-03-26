@@ -11,7 +11,7 @@ const scanPaths = async (key, match, count = 0) => {
     return result
 }
 
-const getKey = (owner, repo) => `{paths}:${owner}:${repo}`
+const getKey = (owner, repo) => `{cac_paths}:${owner}:${repo}`
 
 /**
  * 获取文件路径

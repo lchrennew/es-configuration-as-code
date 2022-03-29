@@ -99,7 +99,7 @@ export const find = async (kind, prefix) => {
     return Promise.all(paths.map(
         async path => {
             const name = getName(kind, path)
-            const { config: { metadata } } = await getOne(kind, name)
+            const { metadata } = await getOne(kind, name)
             return { kind, name, metadata }
         }
     ))
@@ -108,7 +108,9 @@ export const find = async (kind, prefix) => {
 export const getOne = async (kind, name, ref) => {
     const fallback = async () => {
         const result = await readFile(owner, repo, getFilePath(kind, name), ref)
-        return { ref: result.ref, config: safeLoad(result.content) }
+        const config = safeLoad(result.content)
+        config.metadata.version = result.ref
+        return config
     };
     return await cache.getOne(kind, name, ref, fallback)
 };

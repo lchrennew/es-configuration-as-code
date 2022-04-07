@@ -7,6 +7,7 @@ export default class Index extends Controller {
         this.get('/configs/info', this.getOne)
         this.get('/configs/exists', this.exists)
         this.get('/configs', this.find)
+        this.post('/configs/multiple', this.getMultiple)
         this.put('/configs', this.save)
         this.delete('/configs/info', this.remove)
     }
@@ -16,9 +17,14 @@ export default class Index extends Controller {
         ctx.body = await storage.getOne(kind, name, ref).catch(() => null)
     }
 
+    async getMultiple(ctx) {
+        const { list, full } = ctx.request.body
+        ctx.body = await storage.getMultiple({ list, full }).catch(() => [])
+    }
+
     async find(ctx) {
-        const { kind, prefix } = ctx.query
-        ctx.body = await storage.find(kind, prefix).catch(() => [])
+        const { kind, prefix, full } = ctx.query
+        ctx.body = await storage.find(kind, prefix, full).catch(() => [])
     }
 
     async exists(ctx) {

@@ -15,7 +15,7 @@ const setToCache = (kind, name, config, cacLinkKey) => {
     redis.set(cacKey, dumped)
 }
 
-const getCacLinkKey = (kind, name, ref) => ref ? `{cac_link}:${kind}/${name}:${ref}` : `{cac_link}/${kind}:${name}`;
+const getCacLinkKey = (kind, name, ref) => ref ? `{cac_link}:${kind}:${name}:${ref}` : `{cac_link}:${kind}:${name}`;
 
 export const removeCacLinkKey = (kind, name, ref) => redis.unlink(getCacLinkKey(kind, name, ref));
 
@@ -25,7 +25,7 @@ export const getOne = async (kind, name, ref, fallback) => {
     const cached = await getCached(cacLinkKey)
     if (cached) return cached
 
-    const config = await fallback()
+    const config = await fallback(kind, name, ref)
     setToCache(kind, name, config, cacLinkKey)
     return config
 }

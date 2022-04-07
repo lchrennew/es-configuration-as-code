@@ -94,27 +94,33 @@ export const getTreeFilePaths = async (owner, repo, dir = '') => {
     return cache.getPaths(owner, repo, dir, fallback)
 }
 
-export const find = async (kind, prefix) => {
+export const find = async (kind, prefix, full) => {
     const paths = await getTreeFilePaths(owner, repo, getKindPath(kind, prefix))
     return Promise.all(paths.map(
         async path => {
             const name = getName(kind, path)
-            const { metadata } = await getOne(kind, name)
-            return { kind, name, metadata }
+            const { metadata, spec } = await getOne(kind, name)
+            return { kind, name, metadata, ...(full ? { spec } : {}) }
         }
     ))
 };
 
-export const getOne = async (kind, name, ref) => {
-    const fallback = async () => {
-        const result = await readFile(owner, repo, getFilePath(kind, name), ref)
-        const config = safeLoad(result.content)
-        config.metadata.version = result.ref
-        return config
-    };
-    return await cache.getOne(kind, name, ref, fallback)
+const fallback = async (kind, name, ref) => {
+    const result = await readFile(owner, repo, getFilePath(kind, name), ref)
+    const config = safeLoad(result.content)
+    config.metadata.version = result.ref
+    return config
 };
 
+export const getOne = (kind, name, ref) => cache.getOne(kind, name, ref, fallback);
+
+export const getMultiple = ({ list, full }) =>
+    Promise.all(list.map(
+        async ({ kind, name, ref }) => {
+            const { metadata, spec } = await getOne(kind, name, ref)
+            return { kind, name, metadata, ...(full ? { spec } : {}) }
+        }
+    ))
 
 export const save = ({ kind, name, metadata, spec }, operator) =>
     saveFile(owner, repo, getFilePath(kind, name), safeDump({ kind, name, metadata, spec }), operator)

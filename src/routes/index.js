@@ -10,6 +10,30 @@ export default class Index extends Controller {
         this.post('/configs/multiple', this.getMultiple)
         this.put('/configs', this.save)
         this.delete('/configs/info', this.remove)
+
+        this.eventBus.on('save', async (config, operator) => {
+            this.logger.info('SAVING...')
+            try {
+                await storage.save(config, operator)
+                this.logger.info('SAVED.')
+            } catch (error) {
+                this.logger.info('NOT SAVED.')
+                this.logger.info(config, operator)
+                this.logger.error(error)
+            }
+        })
+
+        this.eventBus.on('delete', async (kind, name, operator) => {
+            this.logger.info('DELETING...')
+            try {
+                await storage.removeOne(kind, name, operator)
+                this.logger.info('DELETED.')
+            } catch (error) {
+                this.logger.info('NOT DELETED.')
+                this.logger.info(kind, name, operator)
+                this.logger.error(error)
+            }
+        })
     }
 
     async getOne(ctx) {
@@ -34,15 +58,16 @@ export default class Index extends Controller {
     }
 
     async save(ctx) {
-        const { kind, name, metadata, spec, operator } = ctx.request.body
-        await storage.save({ kind, name, metadata, spec }, operator)
+        const { kind, name, metadata, spec } = ctx.request.body
+        const { operator } = ctx.headers
+        this.eventBus.emitAsync('save', { kind, name, metadata: metadata ?? {}, spec: spec ?? {} }, operator)
         ctx.body = { ok: true }
     }
 
     async remove(ctx) {
         const { kind, name } = ctx.query
         const operator = ctx.request.body
-        await storage.removeOne(kind, name, operator)
+        this.eventBus.emitAsync('delete', kind, name, operator)
         ctx.body = { ok: true }
     }
 

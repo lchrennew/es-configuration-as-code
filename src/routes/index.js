@@ -10,6 +10,7 @@ export default class Index extends Controller {
         this.post('/configs/multiple', this.getMultiple)
         this.put('/configs', this.save)
         this.delete('/configs/info', this.remove)
+        this.post('/configs/submit', this.submit)
 
         this.eventBus.on('save', async (config, operator) => {
             this.logger.info('SAVING...')
@@ -32,6 +33,16 @@ export default class Index extends Controller {
                 this.logger.info('NOT DELETED.')
                 this.logger.info(kind, name, operator)
                 this.logger.error(error)
+            }
+        })
+
+        this.eventBus.on('submit', async (changeSet, operator) => {
+            const { deleted = [], saved = [] } = changeSet
+            for (const { kind, name } of deleted) {
+                await storage.removeOne(kind, name, operator)
+            }
+            for (const config of saved) {
+                await storage.save(config, operator)
             }
         })
     }
@@ -66,9 +77,15 @@ export default class Index extends Controller {
 
     async remove(ctx) {
         const { kind, name } = ctx.query
-        const operator = ctx.request.body
+        const { operator } = ctx.headers
         this.eventBus.emitAsync('delete', kind, name, operator)
         ctx.body = { ok: true }
     }
 
+    async submit(ctx) {
+        const changeSet = ctx.request.body
+        const { operator } = ctx.headers
+        this.eventBus.emitAsync('submit', changeSet, operator)
+        ctx.body = { ok: true }
+    }
 }

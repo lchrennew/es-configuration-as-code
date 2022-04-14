@@ -12,7 +12,7 @@ const getCached = async cacLinkKey => {
 
 const setToCache = (kind, name, config, cacLinkKey) => {
     const dumped = dump(config)
-    const cacKey = `{cac}:${kind}:${name}:${config.ref}`
+    const cacKey = `{cac}:${kind}:${name}:${config.metadata.version}`
     redis.set(cacLinkKey, cacKey)
     redis.set(cacKey, dumped)
 }

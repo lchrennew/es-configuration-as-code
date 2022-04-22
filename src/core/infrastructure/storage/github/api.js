@@ -74,16 +74,16 @@ export const saveFile = async (owner, repo, filepath, content, operator) => {
     } catch (getFileError) {
         if (getFileError.status === 404) {
             try {
-                await createFile({ owner, repo, filepath, content: base64, operator })
+                return await createFile({ owner, repo, filepath, content: base64, operator })
             } catch (createFileError) {
                 if (createFileError.status === 404) {
-                    await updateFile({ owner, repo, filepath, content: base64, operator })
+                    return await updateFile({ owner, repo, filepath, content: base64, operator })
                 } else throw createFileError
             }
         } else throw getFileError
     }
     if (file?.sha) {
-        await updateFile({ owner, repo, filepath, content: base64, sha: file.sha, operator })
+        return await updateFile({ owner, repo, filepath, content: base64, sha: file.sha, operator })
     }
 }
 

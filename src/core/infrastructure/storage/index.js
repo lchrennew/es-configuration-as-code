@@ -124,8 +124,10 @@ export const getMultiple = ({ list, full }) =>
 
 export const save = ({ kind, name, metadata, spec }, operator) =>
     saveFile(owner, repo, getFilePath(kind, name), safeDump({ kind, name, metadata, spec }), operator)
-        .then(() => {
-            cache.removeCacLinkKey(kind, name)
+        .then(({ commit: { sha } }) => {
+            metadata.version = sha
+            logger.info('SET CACHE AFTER SAVED: ', sha)
+            cache.setToCache({ kind, name, metadata, spec }, cache.getCacLinkKey(kind, name))
             cache.addPath(owner, repo, getFilePath(kind, name))
         });
 

@@ -1,5 +1,6 @@
 import { Controller } from "koa-es-template";
 import * as storage from "../core/infrastructure/storage/index.js";
+import { request } from "../core/infrastructure/queue/index.js";
 
 export default class Index extends Controller {
     constructor(config, ...middlewares) {
@@ -15,7 +16,7 @@ export default class Index extends Controller {
         this.eventBus.on('save', async (config, operator) => {
             this.logger.info('SAVING...')
             try {
-                await storage.save(config, operator)
+                await request([ 'save', config, operator ])
                 this.logger.info('SAVED.')
             } catch (error) {
                 this.logger.info('NOT SAVED.')
@@ -27,7 +28,7 @@ export default class Index extends Controller {
         this.eventBus.on('delete', async (kind, name, operator) => {
             this.logger.info('DELETING...')
             try {
-                await storage.removeOne(kind, name, operator)
+                await request([ 'removeOne', kind, name, operator ])
                 this.logger.info('DELETED.')
             } catch (error) {
                 this.logger.info('NOT DELETED.')
@@ -39,14 +40,10 @@ export default class Index extends Controller {
         this.eventBus.on('submit', async (changeSet, operator) => {
             const { deleted = [], saved = [] } = changeSet
             for (const { kind, name } of deleted) {
-                this.logger.debug('delete', kind, name)
-                await storage.removeOne(kind, name, operator)
-                    .catch(error => this.logger.error(error))
+                await request([ 'removeOne', kind, name, operator ])
             }
             for (const config of saved) {
-                this.logger.debug('save', config.kind, config.name)
-                await storage.save(config, operator)
-                    .catch(error => this.logger.error(error))
+                await request([ 'save', config, operator ])
             }
         })
     }

@@ -39,10 +39,14 @@ export default class Index extends Controller {
         this.eventBus.on('submit', async (changeSet, operator) => {
             const { deleted = [], saved = [] } = changeSet
             for (const { kind, name } of deleted) {
+                this.logger.debug('delete', kind, name)
                 await storage.removeOne(kind, name, operator)
+                    .catch(error => this.logger.error(error))
             }
             for (const config of saved) {
+                this.logger.debug('save', config.kind, config.name)
                 await storage.save(config, operator)
+                    .catch(error => this.logger.error(error))
             }
         })
     }

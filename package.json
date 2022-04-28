@@ -14,8 +14,7 @@
     "es-ioredis-url": "^1.0.3",
     "es-object-id": "^1.0.0",
     "js-yaml": "^4.1.0",
-    "koa-es-template": "^1.0.22",
-    "node-fetch": "^3.2.3"
+    "koa-es-template": "^1.0.22"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
